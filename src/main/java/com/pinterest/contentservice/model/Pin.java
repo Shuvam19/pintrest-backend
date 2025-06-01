@@ -11,6 +11,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "pins")
@@ -44,8 +46,17 @@ public class Pin {
     private String attribution;
 
     // Keywords/tags for the pin
-    @Column(columnDefinition = "TEXT")
-    private String keywords;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "pin_keywords",
+        joinColumns = @JoinColumn(name = "pin_id"),
+        inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    private Set<Keyword> keywords = new HashSet<>();
+    
+    // Legacy keywords field as string (for backward compatibility)
+    @Column(name = "keywords_text", columnDefinition = "TEXT")
+    private String keywordsText;
 
     // Privacy setting
     @Column(nullable = false)

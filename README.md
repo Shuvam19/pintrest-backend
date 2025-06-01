@@ -61,35 +61,48 @@ This is the Content Microservice for a Pinterest Clone application. It handles t
 
 ## API Endpoints
 
-### Pin Endpoints
+### Pins
 
-- `POST /api/content/pins` - Create a new Pin
-- `GET /api/content/pins/{pinId}` - Get a Pin by ID
-- `PUT /api/content/pins/{pinId}` - Update a Pin
-- `DELETE /api/content/pins/{pinId}` - Delete a Pin
-- `GET /api/content/pins/user/{userId}` - Get all Pins by user ID
-- `GET /api/content/pins/board/{boardId}` - Get all Pins by board ID
-- `GET /api/content/pins/search?query={searchTerm}` - Search Pins
-- `GET /api/content/pins/user/{userId}/drafts` - Get draft Pins by user ID
-- `PUT /api/content/pins/{pinId}/publish` - Publish a draft Pin
-- `PUT /api/content/pins/{pinId}/board/{boardId}` - Save a Pin to a Board
+- `POST /api/content/pins` - Create a new pin
+- `GET /api/content/pins/{id}` - Get a pin by ID
+- `PUT /api/content/pins/{id}` - Update a pin
+- `DELETE /api/content/pins/{id}` - Delete a pin
+- `GET /api/content/pins/user/{userId}` - Get all pins by user ID
+- `GET /api/content/pins/user/{userId}/page` - Get paginated pins by user ID
+- `GET /api/content/pins/board/{boardId}` - Get all pins by board ID
+- `GET /api/content/pins/board/{boardId}/page` - Get paginated pins by board ID
+- `GET /api/content/pins/search` - Search pins by keyword
+- `GET /api/content/pins/drafts/{userId}` - Get draft pins by user ID
+- `PUT /api/content/pins/{id}/publish` - Publish a draft pin
+- `PUT /api/content/pins/{id}/board/{boardId}` - Save a pin to a board
 
-### Board Endpoints
+### Boards
 
-- `POST /api/content/boards` - Create a new Board
-- `GET /api/content/boards/{boardId}` - Get a Board by ID
-- `PUT /api/content/boards/{boardId}` - Update a Board
-- `DELETE /api/content/boards/{boardId}` - Delete a Board
-- `GET /api/content/boards/user/{userId}` - Get all Boards by user ID
-- `GET /api/content/boards/search?query={searchTerm}` - Search Boards
-- `GET /api/content/boards/category/{category}` - Get Boards by category
-- `PUT /api/content/boards/user/{userId}/order` - Update Board display order
-- `GET /api/content/boards/user/{userId}/collaborative` - Get collaborative Boards by user ID
+- `POST /api/content/boards` - Create a new board
+- `GET /api/content/boards/{id}` - Get a board by ID
+- `PUT /api/content/boards/{id}` - Update a board
+- `DELETE /api/content/boards/{id}` - Delete a board
+- `GET /api/content/boards/user/{userId}` - Get all boards by user ID
+- `GET /api/content/boards/user/{userId}/page` - Get paginated boards by user ID
+- `GET /api/content/boards/search` - Search boards by keyword
+- `GET /api/content/boards/category/{category}` - Get boards by category
+- `PUT /api/content/boards/{id}/display-order` - Update board display order
+- `GET /api/content/boards/collaborative/{userId}` - Get collaborative boards for a user
 
-### File Upload Endpoints
+### Keywords
+
+- `POST /api/content/keywords` - Create a new keyword
+- `GET /api/content/keywords/{id}` - Get a keyword by ID
+- `GET /api/content/keywords/name/{name}` - Get a keyword by name
+- `GET /api/content/keywords` - Get all keywords
+- `GET /api/content/keywords/search` - Search keywords by name
+- `GET /api/content/keywords/popular` - Get most used keywords
+- `GET /api/content/keywords/pin/{pinId}` - Get keywords for a pin
+
+### Files
 
 - `POST /api/content/files/upload` - Upload a file
-- `GET /api/content/files/{fileName}` - Get a file
+- `GET /api/content/files/{fileName}` - Download a file
 - `DELETE /api/content/files/{fileName}` - Delete a file
 
 ## Future Improvements

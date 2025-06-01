@@ -1,12 +1,15 @@
 package com.pinterest.contentservice.service.impl;
 
+import com.pinterest.contentservice.dto.KeywordDto;
 import com.pinterest.contentservice.dto.PinDto;
 import com.pinterest.contentservice.dto.PinRequest;
 import com.pinterest.contentservice.exception.ResourceNotFoundException;
 import com.pinterest.contentservice.model.Board;
+import com.pinterest.contentservice.model.Keyword;
 import com.pinterest.contentservice.model.Pin;
 import com.pinterest.contentservice.repository.BoardRepository;
 import com.pinterest.contentservice.repository.PinRepository;
+import com.pinterest.contentservice.service.KeywordService;
 import com.pinterest.contentservice.service.PinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ public class PinServiceImpl implements PinService {
 
     private final PinRepository pinRepository;
     private final BoardRepository boardRepository;
+    private final KeywordService keywordService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -36,6 +40,16 @@ public class PinServiceImpl implements PinService {
             Board board = boardRepository.findById(pinRequest.getBoardId())
                     .orElseThrow(() -> new ResourceNotFoundException("Board not found with id: " + pinRequest.getBoardId()));
             pin.setBoard(board);
+        }
+        
+        // Process keywords
+        if (pinRequest.getKeywords() != null && !pinRequest.getKeywords().isEmpty()) {
+            List<String> keywordNames = keywordService.parseKeywordString(pinRequest.getKeywords());
+            Set<Keyword> keywords = keywordService.processKeywords(keywordNames);
+            pin.setKeywords(keywords);
+            
+            // Set the keywordsText field for backward compatibility
+            pin.setKeywordsText(pinRequest.getKeywords());
         }
         
         Pin savedPin = pinRepository.save(pin);
@@ -62,9 +76,18 @@ public class PinServiceImpl implements PinService {
         pin.setVideoUrl(pinRequest.getVideoUrl());
         pin.setSourceUrl(pinRequest.getSourceUrl());
         pin.setAttribution(pinRequest.getAttribution());
-        pin.setKeywords(pinRequest.getKeywords());
         pin.setPrivate(pinRequest.isPrivate());
         pin.setDraft(pinRequest.isDraft());
+        
+        // Process keywords
+        if (pinRequest.getKeywords() != null) {
+            List<String> keywordNames = keywordService.parseKeywordString(pinRequest.getKeywords());
+            Set<Keyword> keywords = keywordService.processKeywords(keywordNames);
+            pin.setKeywords(keywords);
+            
+            // Set the keywordsText field for backward compatibility
+            pin.setKeywordsText(pinRequest.getKeywords());
+        }
         
         // Update board if changed
         if (pinRequest.getBoardId() != null && 
@@ -162,7 +185,7 @@ public class PinServiceImpl implements PinService {
                 .videoUrl(pin.getVideoUrl())
                 .sourceUrl(pin.getSourceUrl())
                 .attribution(pin.getAttribution())
-                .keywords(pin.getKeywords())
+                .keywords(pin.getKeywordsText())
                 .isPrivate(pin.isPrivate())
                 .isDraft(pin.isDraft())
                 .userId(pin.getUserId())
@@ -174,6 +197,20 @@ public class PinServiceImpl implements PinService {
         if (pin.getBoard() != null) {
             pinDto.setBoardId(pin.getBoard().getId());
             pinDto.setBoardTitle(pin.getBoard().getTitle());
+        }
+        
+        // Set keyword list if available
+        if (pin.getKeywords() != null && !pin.getKeywords().isEmpty()) {
+            List<KeywordDto> keywordDtos = pin.getKeywords().stream()
+                    .map(keyword -> KeywordDto.builder()
+                            .id(keyword.getId())
+                            .name(keyword.getName())
+                            .pinCount(keyword.getPins().size())
+                            .createdAt(keyword.getCreatedAt() != null ? keyword.getCreatedAt().format(DATE_FORMATTER) : null)
+                            .updatedAt(keyword.getUpdatedAt() != null ? keyword.getUpdatedAt().format(DATE_FORMATTER) : null)
+                            .build())
+                    .collect(Collectors.toList());
+            pinDto.setKeywordList(keywordDtos);
         }
         
         return pinDto;
@@ -188,7 +225,7 @@ public class PinServiceImpl implements PinService {
                 .videoUrl(pinRequest.getVideoUrl())
                 .sourceUrl(pinRequest.getSourceUrl())
                 .attribution(pinRequest.getAttribution())
-                .keywords(pinRequest.getKeywords())
+                .keywordsText(pinRequest.getKeywords())
                 .isPrivate(pinRequest.isPrivate())
                 .isDraft(pinRequest.isDraft())
                 .userId(pinRequest.getUserId())

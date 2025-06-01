@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,6 +34,8 @@ public class PinDto {
     private String attribution;
     
     private String keywords;
+    
+    private List<KeywordDto> keywordList;
     
     private boolean isPrivate;
     
